@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogo da Forca</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jogo da Forca</title>
+<style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom, #aee1f9, #ffffff);
@@ -152,70 +153,174 @@
     }
 
 </style>
-
-<link rel="manifest" href="/Forca/manifest.json">
-<meta name="theme-color" content="#3498db">
-
+<link href="/Forca/manifest.json" rel="manifest"/>
+<meta content="#3498db" name="theme-color"/>
 </head>
 <body>
-
 <audio id="somAcerto" src="arcade-game-collect-point-epic-stock-media-1-00-00.mp3"></audio>
 <audio id="somErro" src="error-warning-login-denied-132113 (2).mp3"></audio>
 <audio id="somDerrota" src="game-over-arcade-6435.mp3"></audio>
 <audio id="somVitoria" src="game-level-complete-143022.mp3"></audio>
-
-  <h1>Jogo da Forca</h1>
-  <div id="categoriaEscolha">
-    <label for="categoria">Escolhe uma categoria: </label>
-    <select id="categoria">
-      <option value="">-- Escolher --</option>
-      <option value="ditados">Ditados Populares</option>
-      <option value="gastronomia">Gastronomia</option>
-      <option value="marcas">Marcas</option>
-      <option value="celebridades">Celebridades</option>
-      <option value="filmes">Nomes de filmes em português de Portugal</option>
-      <option value="animais">Animais</option>
-      <option value="profissoes">Profissões</option>
-    </select>
-    <button id="btnIniciar" onclick="iniciarJogo()">Começar</button>
-  </div>
-  <canvas id="forcaCanvas" width="200" height="250"></canvas>
-  
-<div id="barraContainer" style="width: 100%; height: 20px; background-color: #ccc; margin-bottom: 10px; border-radius: 5px;">
-  <div id="barraTempo" style="height: 100%; width: 100%; background-color: #4caf50; border-radius: 5px;"></div>
+<h1>Jogo da Forca</h1>
+<div id="categoriaEscolha">
+<label for="categoria">Escolhe uma categoria: </label>
+<select id="categoria">
+<option value="">-- Escolher --</option>
+<option value="ditados">Ditados Populares</option>
+<option value="gastronomia">Gastronomia</option>
+<option value="marcas">Marcas</option>
+<option value="celebridades">Celebridades</option>
+<option value="filmes">Nomes de filmes em português de Portugal</option>
+<option value="animais">Animais</option>
+<option value="profissoes">Profissões</option>
+</select>
+<button id="btnIniciar" onclick="iniciarJogo()">Começar</button>
 </div>
-
+<canvas height="250" id="forcaCanvas" width="200"></canvas>
+<div id="barraContainer" style="width: 100%; height: 20px; background-color: #ccc; margin-bottom: 10px; border-radius: 5px;">
+<div id="barraTempo" style="height: 100%; width: 100%; background-color: #4caf50; border-radius: 5px;"></div>
+</div>
 <div id="palavra"></div>
-  <div id="letras"></div>
-  <div id="pontuacao">Pontuação: 0</div>
-  <div id="mensagem"></div>
-  <div id="cronometro" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold;">
+<div id="letras"></div>
+<div id="pontuacao">Pontuação: 0</div>
+<div id="mensagem"></div>
+<div id="cronometro" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold;">
     Tempo restante: <span id="tempoRestante">0</span>s
   </div>
-
-  <div id="continuarJogo" style="display:none; margin-top: 20px;">
-    <p>Queres continuar?</p>
-    <button id="btnSim">Sim</button>
-    <button id="btnNao">Não</button>
-  </div>
-  <div id="guardarPontuacao" style="display:none; margin-top: 20px;">
-    <label for="nomeJogador">Teu nome: </label>
-    <input type="text" id="nomeJogador" placeholder="Escreve aqui">
-    <button onclick="guardarPontuacao()">Guardar Pontuação</button>
-  </div>
-
-  <audio id="somAcerto" src="https://www.soundjay.com/button/beep-07.wav"></audio>
-  <audio id="somErro" src="https://www.soundjay.com/button/beep-10.wav"></audio>
-  <script>
+<div id="continuarJogo" style="display:none; margin-top: 20px;">
+<p>Queres continuar?</p>
+<button id="btnSim">Sim</button>
+<button id="btnNao">Não</button>
+</div>
+<div id="guardarPontuacao" style="display:none; margin-top: 20px;">
+<label for="nomeJogador">Teu nome: </label>
+<input id="nomeJogador" placeholder="Escreve aqui" type="text"/>
+<button onclick="guardarPontuacao()">Guardar Pontuação</button>
+</div>
+<audio id="somAcerto" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+<audio id="somErro" src="https://www.soundjay.com/button/beep-10.wav"></audio>
+<script>
     const categorias = {
-      ditados: ['Mais vale tarde que nunca', 'Quem espera sempre alcança', 'Casa de ferreiro espeto de pau'],
-      gastronomia: ['Bacalhau com natas', 'Francesinha', 'Arroz de marisco'],
-      marcas: ['Nike', 'Samsung', 'Adidas', 'Ferrari'],
-      celebridades: ['Cristiano Ronaldo', 'Amalia Rodrigues', 'Mariza'],
-      filmes: ['Os Maias', 'A Gaiola Dourada', 'Capitaes de Abril'],
-      animais: ['Elefante', 'Canguru', 'Pinguim', 'Jacare'],
-      profissoes: ['Professor', 'Engenheiro', 'Carpinteiro', 'Medico']
-    };
+  "ditados": [
+    "Grão a grão enche a galinha o papo",
+    "Devagar se chega ao longe",
+    "Não há fome que não dê em fartura",
+    "Casa de ferreiro espeto de pau",
+    "No melhor pano cai a nodoa",
+    "O ultimo a rir ri melhor",
+    "Água mole em pedra dura tanto dá até que fura",
+    "Em terra de cegos quem tem olho é rei",
+    "Quem não tem cão caça com gato",
+    "Cada macaco no seu galho",
+    "Diz-me com quem andas, dir-te-ei quem és",
+    "Quem conta um conto, acrescenta-lhe um ponto",
+    "A cavalo dado, não se olham os dentes",
+    "Quem não arrisca não petisca",
+    "Cada macaco no seu galho"
+  ],
+  "gastronomia": [
+    "Bacalhau á Brás",
+    "Cozido á portuguesa",
+    "Carne de porco á alentejana",
+    "Caldo verde",
+    "Feijoada de choco",
+    "Bacalhau á gomes Sá",
+    "Frango assado",
+    "Tripas á moda do porto",
+    "Dobrada",
+    "Esparguete á bolonhesa",
+    "Empadão de atum",
+    "Arroz de pato",
+    "Polvo á lagareiro",
+    "Arroz de marisco",
+    "Sardinhas assadas"
+  ],
+  "marcas": [
+    "Toyota",
+    "Coca cola",
+    "Google",
+    "Ford",
+    "Nestlé",
+    "Visa",
+    "Mastercard",
+    "Gillette",
+    "Sumsung",
+    "Oracle",
+    "Gucci",
+    "Rolex",
+    "Dior",
+    "Chanel",
+    "Volkswagen"
+  ],
+  "celebridades": [
+    "Herman José",
+    "Dulce Pontes",
+    "Rui de Carvalho",
+    "Rui Veloso",
+    "Amalia Rodrigues",
+    "Freddie Mercury",
+    "Bob Marley",
+    "Cristiano Ronaldo",
+    "Lewis Hamilton",
+    "Harrison Ford",
+    "Tom cruise",
+    "Michael Jackson",
+    "Leonardo DiCaprio",
+    "Madona",
+    "Tina Turner"
+  ],
+  "filmes": [
+    "O Padrinho",
+    "A Vida é Bela",
+    "O Senhor dos Anéis",
+    "Regresso ao Futuro",
+    "Os Condenados de Shawshank",
+    "O Rei Leão",
+    "Titanic",
+    "A Lista de Schindler",
+    "O Lobo de Wall Street",
+    "O Código Da Vinci",
+    "Um Sonho de Liberdade",
+    "Harry Potter e a Pedra Filosofal",
+    "A Origem",
+    "Os Vingadores",
+    "O Diabo Veste Prada"
+  ],
+  "animais": [
+    "Rinoceronte",
+    "Morcego",
+    "Cavalo-marinho",
+    "Esquilo",
+    "Lobo",
+    "Polvo",
+    "Camaleão",
+    "Coruja",
+    "Ornitorrinco",
+    "Golfinho",
+    "Pavão",
+    "Faisão",
+    "Rouxinol",
+    "Pirilampo",
+    "Papagaio"
+  ],
+  "profissoes": [
+    "Carpinteiro",
+    "Enfermeira",
+    "Bombeiro",
+    "Cabeleireira",
+    "Electricista",
+    "Engenheiro",
+    "Professor",
+    "Padeiro",
+    "Agricultor",
+    "Arqueólogo",
+    "Policia",
+    "Medico",
+    "Motorista",
+    "Pedreiro",
+    "Canalizador"
+  ]
+};
 // Cópia dinâmica para evitar repetição
 const categoriasDisponiveis = JSON.parse(JSON.stringify(categorias));
 
@@ -257,25 +362,25 @@ const categoriasDisponiveis = JSON.parse(JSON.stringify(categorias));
 
   // Só inicializar uma vez
   if (!categoriasDisponiveis[categoriaSelecionada]) {
-    categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
+    if (!categoriasDisponiveis[categoriaSelecionada]) { categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]]; }
   }
 
   let frases = categoriasDisponiveis[categoriaSelecionada];
   
   if (frases.length === 0) {
-    categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
+    if (!categoriasDisponiveis[categoriaSelecionada]) { categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]]; }
     frases = categoriasDisponiveis[categoriaSelecionada];
   }
       if (frases.length === 0) {
         // Reset se todas foram usadas
-        categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
+        if (!categoriasDisponiveis[categoriaSelecionada]) { categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]]; }
         frases = categoriasDisponiveis[categoriaSelecionada];
       }
       const indice = Math.floor(Math.random() * frases.length);
       palavra = frases.splice(indice, 1)[0].toUpperCase();
       iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
       iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
-estado = palavra.split('').map(c => c === ' ' ? ' ' : '_');
+estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_' : c);
       erros = 0;
       letrasUsadas = [];
       palavraDisplay.textContent = estado.join(' ');
@@ -472,13 +577,6 @@ estado = palavra.split('').map(c => c === ' ' ? ' ' : '_');
       btn_Ç.id = 'btn-Ç';
       btn_Ç.onclick = () => verificarLetra('Ç');
       letrasContainer.appendChild(btn_Ç);
-      // Adicionar letra especial Ç
-      const btnÇ = document.createElement('button');
-      btnÇ.textContent = 'Ç';
-      btnÇ.className = 'letra';
-      btnÇ.id = 'btn-Ç';
-      btnÇ.onclick = () => verificarLetra('Ç');
-      letrasContainer.appendChild(btnÇ);
 
     }
   
@@ -634,19 +732,14 @@ let tempoTotal = 0;
 }
 
 </script>
-
-  <div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
-    <h2>Top 10 Recordes</h2>
-    <ol id="listaRanking"></ol>
-  </div>
-
-
-  <div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
-    <h2>Top 10 Recordes</h2>
-    <ol id="listaRanking"></ol>
-  </div>
-
-
+<div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
+<h2>Top 10 Recordes</h2>
+<ol id="listaRanking"></ol>
+</div>
+<div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
+<h2>Top 10 Recordes</h2>
+<ol id="listaRanking"></ol>
+</div>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -654,6 +747,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
 </body>
 </html>
