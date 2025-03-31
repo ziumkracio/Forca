@@ -1,23 +1,26 @@
-self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open('forca-cache').then(function(cache) {
-      return cache.addAll([
-        'Forca_PWA.html',
-        'manifest.json',
-        'service-worker.js',
-        'arcade-game-collect-point-epic-stock-media-1-00-00.mp3',
-        'error-warning-login-denied-132113 (2).mp3',
-        'game-over-arcade-6435.mp3',
-        'game-level-complete-143022.mp3'
-      ]);
+const cacheName = 'forca-v1';
+const filesToCache = [
+  '/Forca/',
+  '/Forca/index.html',
+  '/Forca/style.css',
+  '/Forca/script.js',
+  '/Forca/manifest.json',
+  '/Forca/icon-192.png',
+  '/Forca/icon-512.png'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(cacheName).then(cache => {
+      return cache.addAll(filesToCache);
     })
   );
 });
 
-self.addEventListener('fetch', function(e) {
-  e.respondWith(
-    caches.match(e.request).then(function(response) {
-      return response || fetch(e.request);
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
     })
   );
 });

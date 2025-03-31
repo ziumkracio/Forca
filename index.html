@@ -153,7 +153,7 @@
 
 </style>
 
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/Forca/manifest.json">
 <meta name="theme-color" content="#3498db">
 
 </head>
@@ -249,12 +249,23 @@ const categoriasDisponiveis = JSON.parse(JSON.stringify(categorias));
     }
 
     function iniciarJogo() {
-      const categoriaSelecionada = document.getElementById('categoria').value;
-      if (!categoriaSelecionada || categorias[categoriaSelecionada].length === 0) {
-        alert('Escolhe uma categoria válida com frases disponíveis.');
-        return;
-      }
-      let frases = categoriasDisponiveis[categoriaSelecionada];
+  const categoriaSelecionada = document.getElementById('categoria').value;
+  if (!categoriaSelecionada || categorias[categoriaSelecionada].length === 0) {
+    alert('Escolhe uma categoria válida com frases disponíveis.');
+    return;
+  }
+
+  // Só inicializar uma vez
+  if (!categoriasDisponiveis[categoriaSelecionada]) {
+    categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
+  }
+
+  let frases = categoriasDisponiveis[categoriaSelecionada];
+  
+  if (frases.length === 0) {
+    categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
+    frases = categoriasDisponiveis[categoriaSelecionada];
+  }
       if (frases.length === 0) {
         // Reset se todas foram usadas
         categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
@@ -639,7 +650,7 @@ let tempoTotal = 0;
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js');
+    navigator.serviceWorker.register('/Forca/service-worker.js');
   });
 }
 </script>
