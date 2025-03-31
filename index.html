@@ -255,25 +255,36 @@ const categoriasDisponiveis = JSON.parse(JSON.stringify(categorias));
     return;
   }
 
-  // Só inicializar uma vez
+  // Criar uma cópia da lista de frases se ainda não existir
   if (!categoriasDisponiveis[categoriaSelecionada]) {
     categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
   }
 
   let frases = categoriasDisponiveis[categoriaSelecionada];
-  
+
+  // Se todas já foram usadas, reinicia a lista
   if (frases.length === 0) {
+    alert('Todas as frases dessa categoria já foram usadas. A lista será reiniciada.');
     categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
     frases = categoriasDisponiveis[categoriaSelecionada];
   }
-      if (frases.length === 0) {
-        // Reset se todas foram usadas
-        categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]];
-        frases = categoriasDisponiveis[categoriaSelecionada];
-      }
-      const indice = Math.floor(Math.random() * frases.length);
-      palavra = frases.splice(indice, 1)[0].toUpperCase();
-      iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
+
+  // Escolher frase e removê-la da lista para não repetir
+  const indice = Math.floor(Math.random() * frases.length);
+  palavra = frases.splice(indice, 1)[0].toUpperCase();
+
+  estado = palavra.split('').map(c => c === ' ' ? ' ' : '_');
+  erros = 0;
+  letrasUsadas = [];
+  palavraDisplay.textContent = estado.join(' ');
+  letrasContainer.innerHTML = '';
+  mensagem.textContent = '';
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  desenharForca();
+  criarBotoes();
+
+  iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
+}
       iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
 estado = palavra.split('').map(c => c === ' ' ? ' ' : '_');
       erros = 0;
