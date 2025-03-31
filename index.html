@@ -152,6 +152,30 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.popup-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+.hidden {
+  display: none;
+}
+
 </style>
 <link href="/Forca/manifest.json" rel="manifest"/>
 <meta content="#3498db" name="theme-color"/>
@@ -187,10 +211,12 @@
 <div id="cronometro" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold;">
     Tempo restante: <span id="tempoRestante">0</span>s
   </div>
-<div id="continuarJogo" style="display:none; margin-top: 20px;">
-<p>Queres continuar?</p>
-<button id="btnSim">Sim</button>
-<button id="btnNao">Não</button>
+<div id="continuarJogo" class="popup hidden">
+  <div class="popup-content">
+    <p>Queres continuar?</p>
+    <button id="btnSim">Sim</button>
+    <button id="btnNao">Não</button>
+  </div>
 </div>
 <div id="guardarPontuacao" style="display:none; margin-top: 20px;">
 <label for="nomeJogador">Teu nome: </label>
@@ -466,7 +492,7 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
           mostrarMensagem('Parabens! Venceste!', 'green');
           clearInterval(intervalo);
           desativarBotoes();
-          document.getElementById('continuarJogo').style.display = 'block';
+          document.getElementById('continuarJogo').classList.remove('hidden');
         }
       } else {
         somErro.play();
@@ -581,14 +607,16 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
     }
   
     document.getElementById('btnSim').onclick = () => {
-      document.getElementById('continuarJogo').style.display = 'none';
+  alert("Escolhe uma categoria e continua.");
+      document.getElementById('continuarJogo').classList.add('hidden');
       document.getElementById('categoria').value = "";
       document.getElementById('categoriaEscolha').style.display = 'block';
       document.getElementById('btnIniciar').textContent = 'Continuar';
     };
 
     document.getElementById('btnNao').onclick = () => {
-      document.getElementById('continuarJogo').style.display = 'none';
+  alert("Insere o teu nome para guardar a pontuação.");
+      document.getElementById('continuarJogo').classList.add('hidden');
       document.getElementById('guardarPontuacao').style.display = 'block';
           document.getElementById('btnIniciar').textContent = 'Começar';
           document.getElementById('categoria').value = '';
