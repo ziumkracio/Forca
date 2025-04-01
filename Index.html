@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+<html lang="pt">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jogo da Forca</title>
+<style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #aee1f9, #ffffff);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    #categoriaEscolha {
+      margin-bottom: 20px;
+    }
+    select {
+      font-size: 1rem;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    #forcaCanvas {
+      margin: 20px;
+    }
+    #palavra {
+      font-size: 2rem;
+      letter-spacing: 8px;
+      margin-bottom: 20px;
+      color: #34495e;
+    }
+    #letras {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 350px;
+      gap: 8px;
+    }
+    .letra {
+      background-color: #3498db;
+      border: none;
+      color: white;
+      padding: 12px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      width: 40px;
+      text-align: center;
+      cursor: pointer;
+    }
+    
+
+      background-color: #3498db;
+      border: none;
+      color: white;
+      padding: 12px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      width: 40px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .letra:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+    #mensagem {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #e74c3c;
+      margin-top: 20px;
+    }
+    @media (max-width: 600px) {
+      #palavra {
+        font-size: 1.5rem;
+      }
+      .letra {
+      background-color: #3498db;
+      border: none;
+      color: white;
+      padding: 12px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      width: 40px;
+      text-align: center;
+      cursor: pointer;
+    }
+    
+
+        padding: 10px;
+        font-size: 1rem;
+        width: 35px;
+      }
+    }
+  
+    .acerto {
+      background-color: #2ecc71 !important;
+      color: white;
+    }
+    .erro {
+      background-color: #e74c3c !important;
+      color: white;
+    }
+
+
+    .pontuacao-flutuante {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      font-weight: bold;
+      color: green;
+      background: white;
+      padding: 10px;
+      border: 2px solid black;
+      z-index: 99999;
+      animation: subir 1s ease-out forwards;
+    }
+    @keyframes subir {
+      0% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -100%); }
+    }
+
+
+    #categoriaEscolha {
+  text-align: center;
+}
+
+#categoriaEscolha button {
+      background: linear-gradient(145deg, #f1c40f, #f39c12);
+      border: 2px solid #000;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #categoriaEscolha button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.popup-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+.hidden {
+  display: none;
+}
+
+</style>
+<link href="/Forca/manifest.json" rel="manifest"/>
+<meta content="#3498db" name="theme-color"/>
+<style>
+  .botao-amarelo {
+    background: linear-gradient(to bottom, #f9d423, #f39c12);
+    border: 2px solid black;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+  }
+
+  .botao-amarelo:hover {
+    background: linear-gradient(to bottom, #f39c12, #f9d423);
+  }
+</style>
+</head>
+<body>
+<audio id="somAcerto" src="arcade-game-collect-point-epic-stock-media-1-00-00.mp3"></audio>
+<audio id="somErro" src="error-warning-login-denied-132113 (2).mp3"></audio>
+<audio id="somDerrota" src="game-over-arcade-6435.mp3"></audio>
+<audio id="somVitoria" src="game-level-complete-143022.mp3"></audio>
+<h1>Jogo da Forca</h1>
+<div id="categoriaEscolha">
+<label for="categoria">Escolhe uma categoria: </label>
+<select id="categoria">
+<option value="">-- Escolher --</option>
+<option value="ditados">Ditados Populares</option>
+<option value="gastronomia">Gastronomia</option>
+<option value="marcas">Marcas</option>
+<option value="celebridades">Celebridades</option>
+<option value="filmes">Nomes de filmes em português de Portugal</option>
+<option value="animais">Animais</option>
+<option value="profissoes">Profissões</option>
+</select>
+<button class="botao-amarelo" id="btnIniciar" onclick="iniciarJogo()">Começar</button>
+</div>
+<canvas height="250" id="forcaCanvas" width="200"></canvas>
+<div id="barraContainer" style="width: 100%; height: 20px; background-color: #ccc; margin-bottom: 10px; border-radius: 5px;">
+<div id="barraTempo" style="height: 100%; width: 100%; background-color: #4caf50; border-radius: 5px;"></div>
+</div>
+<div id="palavra"></div>
+<div id="letras"></div>
+<div id="pontuacao">Pontuação: 0</div>
+<div id="mensagem"></div>
+<div id="cronometro" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold;">
+    Tempo restante: <span id="tempoRestante">0</span>s
+  </div>
+<div class="popup hidden" id="continuarJogo">
+<div class="popup-content">
+<p style="color: green; font-size: 1.4rem; font-weight: bold;">Parabéns! Venceste!</p>
+<p>Queres continuar?</p>
+<button class="botao-amarelo" id="btnSim">Sim</button>
+<button class="botao-amarelo" id="btnNao">Não</button>
+<div id="popupNovaCategoria" style="display: none; margin-top: 15px;">
+<p>Escolhe uma categoria:</p>
+<select id="popupCategoria" style="margin-bottom: 10px;"><option value="">-- Escolher --</option><option value="ditados">Ditados Populares</option><option value="gastronomia">Gastronomia</option><option value="marcas">Marcas</option><option value="celebridades">Celebridades</option><option value="filmes">Filmes</option><option value="animais">Animais</option><option value="profissoes">Profissões</option></select>
+<br/>
+<button class="botao-amarelo" id="btnComecarPopup">Começar</button>
+</div>
+</div>
+</div>
+<audio id="somAcerto" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+<audio id="somErro" src="https://www.soundjay.com/button/beep-10.wav"></audio>
+<script>
+    const categorias = {
+  "ditados": [
+    "Grão a grão enche a galinha o papo",
+    "Devagar se chega ao longe",
+    "Não há fome que não dê em fartura",
+    "Casa de ferreiro espeto de pau",
+    "No melhor pano cai a nodoa",
+    "O ultimo a rir ri melhor",
+    "Água mole em pedra dura tanto dá até que fura",
+    "Em terra de cegos quem tem olho é rei",
+    "Quem não tem cão caça com gato",
+    "Cada macaco no seu galho",
+    "Diz-me com quem andas, dir-te-ei quem és",
+    "Quem conta um conto, acrescenta-lhe um ponto",
+    "A cavalo dado, não se olham os dentes",
+    "Quem não arrisca não petisca",
+    "Cada macaco no seu galho"
+  ],
+  "gastronomia": [
+    "Bacalhau á Brás",
+    "Cozido á portuguesa",
+    "Carne de porco á alentejana",
+    "Caldo verde",
+    "Feijoada de choco",
+    "Bacalhau á gomes Sá",
+    "Frango assado",
+    "Tripas á moda do porto",
+    "Dobrada",
+    "Esparguete á bolonhesa",
+    "Empadão de atum",
+    "Arroz de pato",
+    "Polvo á lagareiro",
+    "Arroz de marisco",
+    "Sardinhas assadas"
+  ],
+  "marcas": [
+    "Toyota",
+    "Coca cola",
+    "Google",
+    "Ford",
+    "Nestlé",
+    "Visa",
+    "Mastercard",
+    "Gillette",
+    "Sumsung",
+    "Oracle",
+    "Gucci",
+    "Rolex",
+    "Dior",
+    "Chanel",
+    "Volkswagen"
+  ],
+  "celebridades": [
+    "Herman José",
+    "Dulce Pontes",
+    "Rui de Carvalho",
+    "Rui Veloso",
+    "Amalia Rodrigues",
+    "Freddie Mercury",
+    "Bob Marley",
+    "Cristiano Ronaldo",
+    "Lewis Hamilton",
+    "Harrison Ford",
+    "Tom cruise",
+    "Michael Jackson",
+    "Leonardo DiCaprio",
+    "Madona",
+    "Tina Turner"
+  ],
+  "filmes": [
+    "O Padrinho",
+    "A Vida é Bela",
+    "O Senhor dos Anéis",
+    "Regresso ao Futuro",
+    "Os Condenados de Shawshank",
+    "O Rei Leão",
+    "Titanic",
+    "A Lista de Schindler",
+    "O Lobo de Wall Street",
+    "O Código Da Vinci",
+    "Um Sonho de Liberdade",
+    "Harry Potter e a Pedra Filosofal",
+    "A Origem",
+    "Os Vingadores",
+    "O Diabo Veste Prada"
+  ],
+  "animais": [
+    "Rinoceronte",
+    "Morcego",
+    "Cavalo-marinho",
+    "Esquilo",
+    "Lobo",
+    "Polvo",
+    "Camaleão",
+    "Coruja",
+    "Ornitorrinco",
+    "Golfinho",
+    "Pavão",
+    "Faisão",
+    "Rouxinol",
+    "Pirilampo",
+    "Papagaio"
+  ],
+  "profissoes": [
+    "Carpinteiro",
+    "Enfermeira",
+    "Bombeiro",
+    "Cabeleireira",
+    "Electricista",
+    "Engenheiro",
+    "Professor",
+    "Padeiro",
+    "Agricultor",
+    "Arqueólogo",
+    "Policia",
+    "Medico",
+    "Motorista",
+    "Pedreiro",
+    "Canalizador"
+  ]
+};
+// Cópia dinâmica para evitar repetição
+const categoriasDisponiveis = JSON.parse(JSON.stringify(categorias));
+
+    let palavra = '';
+    let estado = [];
+    let erros = 0;
+    let letrasUsadas = [];
+    const maxErros = 6;
+    const canvas = document.getElementById('forcaCanvas');
+    const ctx = canvas.getContext('2d');
+    const palavraDisplay = document.getElementById('palavra');
+    const letrasContainer = document.getElementById('letras');
+    const mensagem = document.getElementById('mensagem');
+    const somAcerto = document.getElementById('somAcerto');
+    const somErro = document.getElementById('somErro');
+    let pontuacao = 0;
+    const pontuacaoDisplay = document.getElementById('pontuacao');
+    
+    function mostrarPontuacaoFlutuante(texto, cor) {
+      const span = document.createElement('span');
+      span.className = 'pontuacao-flutuante';
+      span.style.color = cor;
+      span.textContent = texto;
+      document.body.appendChild(span);
+      setTimeout(() => span.remove(), 1000);
+    }
+
+    function atualizarPontuacao(valor) {
+      pontuacao += valor;
+      pontuacaoDisplay.textContent = 'Pontuação: ' + pontuacao;
+    }
+
+    function iniciarJogo() {
+  const categoriaSelecionada = document.getElementById('categoria').value;
+  if (!categoriaSelecionada || categorias[categoriaSelecionada].length === 0) {
+    alert('Escolhe uma categoria válida com frases disponíveis.');
+    return;
+  }
+
+  // Só inicializar uma vez
+  if (!categoriasDisponiveis[categoriaSelecionada]) {
+    if (!categoriasDisponiveis[categoriaSelecionada]) { categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]]; }
+  }
+
+  let frases = categoriasDisponiveis[categoriaSelecionada];
+  
+  if (frases.length === 0) {
+    if (!categoriasDisponiveis[categoriaSelecionada]) { categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]]; }
+    frases = categoriasDisponiveis[categoriaSelecionada];
+  }
+      if (frases.length === 0) {
+        // Reset se todas foram usadas
+        if (!categoriasDisponiveis[categoriaSelecionada]) { categoriasDisponiveis[categoriaSelecionada] = [...categorias[categoriaSelecionada]]; }
+        frases = categoriasDisponiveis[categoriaSelecionada];
+      }
+      const indice = Math.floor(Math.random() * frases.length);
+      palavra = frases.splice(indice, 1)[0].toUpperCase();
+      iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
+      iniciarCronometro(palavra.replace(/\s/g, '').length * 15);
+estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_' : c);
+      erros = 0;
+      letrasUsadas = [];
+      palavraDisplay.textContent = estado.join(' ');
+      letrasContainer.innerHTML = '';
+      mensagem.textContent = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // pontuação mantida
+      desenharForca();
+      criarBotoes();
+    }
+    function desenharForca() {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#000';
+      ctx.beginPath();
+      ctx.moveTo(10, 240);
+      ctx.lineTo(190, 240);
+      ctx.moveTo(50, 240);
+      ctx.lineTo(50, 20);
+      ctx.lineTo(130, 20);
+      ctx.lineTo(130, 40);
+      ctx.stroke();
+      if (erros > 0) {
+      const emojis = ["🙂", "😐", "😟", "😨", "😱", "😵", "💀"];
+      const emoji = emojis[Math.min(erros, emojis.length - 1)];
+      ctx.font = '24px Segoe UI Emoji';
+      ctx.textAlign = 'center';
+      ctx.fillText(emoji, 130, 68);
+    
+        ctx.stroke();
+      }
+      if (erros > 1) {
+        ctx.beginPath();
+        ctx.moveTo(130, 80);
+        ctx.lineTo(130, 140);
+        ctx.stroke();
+      }
+      if (erros > 2) {
+        ctx.beginPath();
+        ctx.moveTo(130, 100);
+        ctx.lineTo(100, 120);
+        ctx.stroke();
+      }
+      if (erros > 3) {
+        ctx.beginPath();
+        ctx.moveTo(130, 100);
+        ctx.lineTo(160, 120);
+        ctx.stroke();
+      }
+      if (erros > 4) {
+        ctx.beginPath();
+        ctx.moveTo(130, 140);
+        ctx.lineTo(100, 180);
+        ctx.stroke();
+      }
+      if (erros > 5) {
+        ctx.beginPath();
+        ctx.moveTo(130, 140);
+        ctx.lineTo(160, 180);
+        ctx.stroke();
+      }
+    }
+    function mostrarMensagem(texto, cor) {
+      mensagem.textContent = texto;
+      mensagem.style.color = cor;
+    }
+    function verificarLetra(letra) {
+      if (letrasUsadas.includes(letra)) return;
+      letrasUsadas.push(letra);
+      const botao = document.getElementById('btn-' + letra);
+      botao.disabled = true;
+      if (palavra.includes(letra)) {
+        somAcerto.play();
+        atualizarPontuacao(1);
+        mostrarPontuacaoFlutuante('+1', 'green');
+        botao.classList.add('acerto');
+        botao.style.backgroundColor = '#2ecc71';
+        botao.style.color = 'white';
+        for (let i = 0; i < palavra.length; i++) {
+          if (palavra[i] === letra) estado[i] = letra;
+        }
+        palavraDisplay.textContent = estado.join(' ');
+        if (!estado.includes('_')) {
+          mostrarMensagem('Parabens! Venceste!', 'green');
+          clearInterval(intervalo);
+          desativarBotoes();
+          document.getElementById('continuarJogo').classList.remove('hidden');
+        }
+      } else {
+        somErro.play();
+        atualizarPontuacao(-1);
+        mostrarPontuacaoFlutuante('-1', 'red');
+        botao.classList.add('erro');
+        erros++;
+        tempo = Math.max(0, tempo - 1);
+        desenharForca();
+        if (erros >= maxErros) {
+          clearInterval(intervalo);
+          document.getElementById('barraTempo').style.width = '0%';
+          document.getElementById('barraTempo').style.backgroundColor = '#f44336';
+          mostrarPopupDerrota(palavra);
+          desativarBotoes();
+          document.getElementById('guardarPontuacao').style.display = 'block';
+          document.getElementById('btnIniciar').textContent = 'Começar';
+          document.getElementById('categoria').value = '';
+          // pontuação será reiniciada após guardar
+        }
+      }
+    }
+    
+    function desativarBotoes() {
+      const botoes = document.querySelectorAll('.letra');
+      botoes.forEach(btn => btn.disabled = true);
+    }
+
+    function criarBotoes() {
+      for (let i = 65; i <= 90; i++) {
+        const letra = String.fromCharCode(i);
+        const btn = document.createElement('button');
+        btn.textContent = letra;
+        btn.className = 'letra';
+        btn.id = 'btn-' + letra;
+        btn.onclick = () => verificarLetra(letra);
+        letrasContainer.appendChild(btn);
+      }
+      const btn_Á = document.createElement('button');
+      btn_Á.textContent = 'Á';
+      btn_Á.className = 'letra';
+      btn_Á.id = 'btn-Á';
+      btn_Á.onclick = () => verificarLetra('Á');
+      letrasContainer.appendChild(btn_Á);
+      const btn_À = document.createElement('button');
+      btn_À.textContent = 'À';
+      btn_À.className = 'letra';
+      btn_À.id = 'btn-À';
+      btn_À.onclick = () => verificarLetra('À');
+      letrasContainer.appendChild(btn_À);
+      const btn_Â = document.createElement('button');
+      btn_Â.textContent = 'Â';
+      btn_Â.className = 'letra';
+      btn_Â.id = 'btn-Â';
+      btn_Â.onclick = () => verificarLetra('Â');
+      letrasContainer.appendChild(btn_Â);
+      const btn_Ã = document.createElement('button');
+      btn_Ã.textContent = 'Ã';
+      btn_Ã.className = 'letra';
+      btn_Ã.id = 'btn-Ã';
+      btn_Ã.onclick = () => verificarLetra('Ã');
+      letrasContainer.appendChild(btn_Ã);
+      const btn_É = document.createElement('button');
+      btn_É.textContent = 'É';
+      btn_É.className = 'letra';
+      btn_É.id = 'btn-É';
+      btn_É.onclick = () => verificarLetra('É');
+      letrasContainer.appendChild(btn_É);
+      const btn_Ê = document.createElement('button');
+      btn_Ê.textContent = 'Ê';
+      btn_Ê.className = 'letra';
+      btn_Ê.id = 'btn-Ê';
+      btn_Ê.onclick = () => verificarLetra('Ê');
+      letrasContainer.appendChild(btn_Ê);
+      const btn_Í = document.createElement('button');
+      btn_Í.textContent = 'Í';
+      btn_Í.className = 'letra';
+      btn_Í.id = 'btn-Í';
+      btn_Í.onclick = () => verificarLetra('Í');
+      letrasContainer.appendChild(btn_Í);
+      const btn_Ó = document.createElement('button');
+      btn_Ó.textContent = 'Ó';
+      btn_Ó.className = 'letra';
+      btn_Ó.id = 'btn-Ó';
+      btn_Ó.onclick = () => verificarLetra('Ó');
+      letrasContainer.appendChild(btn_Ó);
+      const btn_Ô = document.createElement('button');
+      btn_Ô.textContent = 'Ô';
+      btn_Ô.className = 'letra';
+      btn_Ô.id = 'btn-Ô';
+      btn_Ô.onclick = () => verificarLetra('Ô');
+      letrasContainer.appendChild(btn_Ô);
+      const btn_Õ = document.createElement('button');
+      btn_Õ.textContent = 'Õ';
+      btn_Õ.className = 'letra';
+      btn_Õ.id = 'btn-Õ';
+      btn_Õ.onclick = () => verificarLetra('Õ');
+      letrasContainer.appendChild(btn_Õ);
+      const btn_Ú = document.createElement('button');
+      btn_Ú.textContent = 'Ú';
+      btn_Ú.className = 'letra';
+      btn_Ú.id = 'btn-Ú';
+      btn_Ú.onclick = () => verificarLetra('Ú');
+      letrasContainer.appendChild(btn_Ú);
+      const btn_Ç = document.createElement('button');
+      btn_Ç.textContent = 'Ç';
+      btn_Ç.className = 'letra';
+      btn_Ç.id = 'btn-Ç';
+      btn_Ç.onclick = () => verificarLetra('Ç');
+      letrasContainer.appendChild(btn_Ç);
+
+    }
+  
+    document.getElementById('btnSim').onclick = () => {
+  alert("Escolhe uma categoria e continua.");
+      document.getElementById('continuarJogo').classList.add('hidden');
+      document.getElementById('categoria').value = "";
+      document.getElementById('categoriaEscolha').style.display = 'block';
+      document.getElementById('btnIniciar').textContent = 'Continuar';
+    };
+
+    document.getElementById('btnNao').onclick = () => {
+  document.getElementById('mensagemDerrota').textContent = 'Insere o teu nome para guardar a pontuação:';
+  document.getElementById('continuarJogo').classList.add('hidden');
+  document.getElementById('popupDerrota').classList.remove('hidden');
+  window.scrollTo(0, 0);
+};
+
+    function guardarPontuacao() {
+      const nome = document.getElementById('nomeJogador').value.trim();
+      if (nome === "") {
+        alert("Por favor, escreve o teu nome para guardar a pontuação.");
+        return;
+      }
+      alert(`Pontuação de ${nome} guardada com ${pontuacao} pontos!`);
+      document.getElementById('guardarPontuacao').style.display = 'none';
+      pontuacao = 0;
+      atualizarPontuacao(0);
+      document.getElementById('btnIniciar').textContent = 'Começar';
+      document.getElementById('categoria').value = '';
+    }
+
+
+    function guardarPontuacao() {
+      const nome = document.getElementById('nomeJogador').value.trim();
+      if (nome === "") {
+        alert("Por favor, escreve o teu nome para guardar a pontuação.");
+        return;
+      }
+
+      const novaPontuacao = { nome: nome, pontos: pontuacao, data: new Date().toLocaleString() };
+      let ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+
+      ranking.push(novaPontuacao);
+      ranking.sort((a, b) => b.pontos - a.pontos);
+      ranking = ranking.slice(0, 10); // Manter top 10
+      localStorage.setItem('rankingForca', JSON.stringify(ranking));
+
+      mostrarRanking();
+      alert(`Pontuação de ${nome} guardada com ${pontuacao} pontos!`);
+      document.getElementById('guardarPontuacao').style.display = 'none';
+      pontuacao = 0;
+      atualizarPontuacao(0);
+      document.getElementById('btnIniciar').textContent = 'Começar';
+      document.getElementById('categoria').value = '';
+    }
+
+    function mostrarRanking() {
+      const lista = document.getElementById('listaRanking');
+      const ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+      lista.innerHTML = "";
+      ranking.forEach((jogador, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${jogador.nome} - ${jogador.pontos} pontos`;
+        lista.appendChild(li);
+      });
+    }
+
+    window.onload = mostrarRanking;
+
+
+    function guardarPontuacao() {
+      const nome = document.getElementById('nomeJogador').value.trim();
+      if (nome === "") {
+        alert("Por favor, escreve o teu nome para guardar a pontuação.");
+        return;
+      }
+
+      const novaPontuacao = {
+        nome: nome,
+        pontos: pontuacao,
+        data: new Date().toLocaleString()
+      };
+
+      let ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+      ranking.push(novaPontuacao);
+      ranking.sort((a, b) => b.pontos - a.pontos);
+      ranking = ranking.slice(0, 10);
+      localStorage.setItem('rankingForca', JSON.stringify(ranking));
+
+      mostrarRanking();
+      alert(`Pontuação de ${nome} guardada com ${pontuacao} pontos!`);
+      document.getElementById('guardarPontuacao').style.display = 'none';
+      pontuacao = 0;
+      atualizarPontuacao(0);
+      document.getElementById('btnIniciar').textContent = 'Começar';
+      document.getElementById('categoria').value = '';
+    }
+
+    function mostrarRanking() {
+      const lista = document.getElementById('listaRanking');
+      const ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+      lista.innerHTML = "";
+      ranking.forEach((jogador, i) => {
+        const li = document.createElement('li');
+        let medalha = '';
+        if (i === 0) medalha = '🥇 ';
+        else if (i === 1) medalha = '🥈 ';
+        else if (i === 2) medalha = '🥉 ';
+        li.textContent = `${medalha}${jogador.nome} - ${jogador.pontos} pontos (${jogador.data})`;
+        lista.appendChild(li);
+      });
+    }
+
+    window.onload = mostrarRanking;
+
+
+    let tempo = 0;
+let tempoTotal = 0;
+    let intervalo;
+
+    function iniciarCronometro(segundos) {
+      clearInterval(intervalo);
+      tempoTotal = segundos;
+      tempo = segundos;
+      atualizarTempo();
+      intervalo = setInterval(() => {
+        tempo--;
+        atualizarTempo();
+        if (tempo <= 0) {
+          clearInterval(intervalo);
+          mostrarMensagem("Tempo esgotado! Perdeste!", "red");
+          desativarBotoes();
+          document.getElementById('guardarPontuacao').style.display = 'block';
+          document.getElementById('btnIniciar').textContent = 'Começar';
+          document.getElementById('categoria').value = '';
+        }
+      }, 1000);
+    }
+
+    function atualizarTempo() {
+  document.getElementById('tempoRestante').textContent = tempo;
+  const percent = (tempo / tempoTotal) * 100;
+  const barra = document.getElementById('barraTempo');
+  barra.style.width = percent + '%';
+  if (percent <= 30) {
+    barra.style.backgroundColor = '#f44336';
+  } else if (percent <= 60) {
+    barra.style.backgroundColor = '#ff9800';
+  } else {
+    barra.style.backgroundColor = '#4caf50';
+  }
+}
+
+
+function mostrarPopupDerrota(frase) {
+  document.getElementById('mensagemDerrota').textContent = 'Perdeste! A frase era: ' + frase;
+  document.getElementById('popupDerrota').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function fecharPopupDerrota() {
+  document.getElementById('popupDerrota').classList.add('hidden');
+  const nomeInput = document.getElementById('nomeJogador');
+  if (nomeInput) {
+    nomeInput.scrollIntoView({ behavior: 'smooth' });
+    nomeInput.focus();
+  }
+}
+
+
+function guardarPontuacaoPopup() {
+  const nome = document.getElementById('nomeJogadorPopup').value.trim();
+  if (nome === "") {
+    alert("Por favor, escreve o teu nome.");
+    return;
+  }
+
+  const novaPontuacao = {
+    nome: nome,
+    pontos: pontuacao,
+    data: new Date().toLocaleString()
+  };
+
+  let ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+  ranking.push(novaPontuacao);
+  ranking.sort((a, b) => b.pontos - a.pontos);
+  ranking = ranking.slice(0, 10);
+  localStorage.setItem('rankingForca', JSON.stringify(ranking));
+
+  mostrarRanking();
+  document.getElementById('popupDerrota').classList.add('hidden');
+  pontuacao = 0;
+  atualizarPontuacao(0);
+  document.getElementById('btnIniciar').textContent = 'Começar';
+  document.getElementById('categoriaEscolha').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+
+function mostrarPopupVitoria() {
+  document.getElementById('popupVitoria').classList.remove('hidden');
+}
+
+
+document.getElementById("btnSim").onclick = () => {
+  document.getElementById("popupNovaCategoria").style.display = "block";
+  document.getElementById("btnSim").style.display = "none";
+  document.getElementById("btnNao").style.display = "none";
+};
+
+
+document.getElementById("btnComecarPopup").onclick = () => {
+  const categoriaSelecionada = document.getElementById("popupCategoria").value;
+  if (!categoriaSelecionada) {
+    alert("Escolhe uma categoria.");
+    return;
+  }
+
+  document.getElementById("categoria").value = categoriaSelecionada;
+  document.getElementById("continuarJogo").classList.add("hidden");
+  document.getElementById("popupVitoria").classList.add("hidden");
+  document.getElementById("categoriaEscolha").style.display = "none";
+  iniciarJogo();
+};
+
+</script>
+<div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
+<h2>Top 10 Recordes</h2>
+<ol id="listaRanking"></ol>
+</div>
+<div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
+<h2>Top 10 Recordes</h2>
+<ol id="listaRanking"></ol>
+</div>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/Forca/service-worker.js');
+  });
+}
+
+function mostrarPopupDerrota(frase) {
+  document.getElementById('mensagemDerrota').textContent = 'Perdeste! A frase era: ' + frase;
+  document.getElementById('popupDerrota').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function fecharPopupDerrota() {
+  document.getElementById('popupDerrota').classList.add('hidden');
+  const nomeInput = document.getElementById('nomeJogador');
+  if (nomeInput) {
+    nomeInput.scrollIntoView({ behavior: 'smooth' });
+    nomeInput.focus();
+  }
+}
+
+
+function guardarPontuacaoPopup() {
+  const nome = document.getElementById('nomeJogadorPopup').value.trim();
+  if (nome === "") {
+    alert("Por favor, escreve o teu nome.");
+    return;
+  }
+
+  const novaPontuacao = {
+    nome: nome,
+    pontos: pontuacao,
+    data: new Date().toLocaleString()
+  };
+
+  let ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+  ranking.push(novaPontuacao);
+  ranking.sort((a, b) => b.pontos - a.pontos);
+  ranking = ranking.slice(0, 10);
+  localStorage.setItem('rankingForca', JSON.stringify(ranking));
+
+  mostrarRanking();
+  document.getElementById('popupDerrota').classList.add('hidden');
+  pontuacao = 0;
+  atualizarPontuacao(0);
+  document.getElementById('btnIniciar').textContent = 'Começar';
+  document.getElementById('categoriaEscolha').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+
+function mostrarPopupVitoria() {
+  document.getElementById('popupVitoria').classList.remove('hidden');
+}
+
+
+document.getElementById("btnSim").onclick = () => {
+  document.getElementById("popupNovaCategoria").style.display = "block";
+  document.getElementById("btnSim").style.display = "none";
+  document.getElementById("btnNao").style.display = "none";
+};
+
+
+document.getElementById("btnComecarPopup").onclick = () => {
+  const categoriaSelecionada = document.getElementById("popupCategoria").value;
+  if (!categoriaSelecionada) {
+    alert("Escolhe uma categoria.");
+    return;
+  }
+
+  document.getElementById("categoria").value = categoriaSelecionada;
+  document.getElementById("continuarJogo").classList.add("hidden");
+  document.getElementById("popupVitoria").classList.add("hidden");
+  document.getElementById("categoriaEscolha").style.display = "none";
+  iniciarJogo();
+};
+
+</script>
+<div class="popup hidden" id="popupDerrota">
+<div class="popup-content">
+<p id="mensagemDerrota" style="color: red; font-size: 1.4rem; font-weight: bold;"></p>
+<p>Insere o teu nome para guardar a pontuação:</p>
+<input id="nomeJogadorPopup" placeholder="Teu nome" style="margin-bottom: 10px;" type="text"/>
+<button class="botao-amarelo" onclick="guardarPontuacaoPopup()">Guardar Pontuação</button>
+</div>
+</div>
+<div class="popup hidden" id="popupVitoria">
+<div class="popup-content">
+<p style="font-weight: bold; font-size: 1.2rem;">Parabéns! Venceste! Queres continuar?</p>
+<button class="botao-amarelo" id="btnSim">Sim</button>
+<button class="botao-amarelo" id="btnNao">Não</button>
+<div id="popupNovaCategoria" style="display: none; margin-top: 15px;">
+<p>Escolhe uma categoria:</p>
+<select id="popupCategoria" style="margin-bottom: 10px;">
+<option value="">-- Escolher --</option>
+<option value="Ditados Populares">Ditados Populares</option>
+<option value="Gastronomia">Gastronomia</option>
+<option value="Marcas">Marcas</option>
+<option value="Celebridades">Celebridades</option>
+<option value="Filmes">Filmes</option>
+<option value="Animais">Animais</option>
+<option value="Profissões">Profissões</option>
+</select>
+<br/>
+<button class="botao-amarelo" id="btnComecarPopup">Começar</button>
+</div>
+</div>
+</div>
+</body>
+</html>
