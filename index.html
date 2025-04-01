@@ -213,15 +213,16 @@
   </div>
 <div id="continuarJogo" class="popup hidden">
   <div class="popup-content">
-    <p>Queres continuar?</p>
+    <p style='color: green; font-size: 1.4rem; font-weight: bold;'>Parabéns! Venceste!</p>
+<p>Queres continuar?</p>
     <button id="btnSim">Sim</button>
     <button id="btnNao">Não</button>
   </div>
 </div>
-<div id="guardarPontuacao" style="display:none; margin-top: 20px;">
+<div id="guardarPontuacao" style="text-align: center; display: none; margin-top: 20px;">
 <label for="nomeJogador">Teu nome: </label>
 <input id="nomeJogador" placeholder="Escreve aqui" type="text"/>
-<button onclick="guardarPontuacao()">Guardar Pontuação</button>
+<button style="background: linear-gradient(145deg, #f1c40f, #f39c12); border: 2px solid #000; color: #000; font-weight: bold; padding: 10px 20px; font-size: 1.1rem; border-radius: 10px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;" onclick="guardarPontuacao()">Guardar Pontuação</button>
 </div>
 <audio id="somAcerto" src="https://www.soundjay.com/button/beep-07.wav"></audio>
 <audio id="somErro" src="https://www.soundjay.com/button/beep-10.wav"></audio>
@@ -506,7 +507,7 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
           clearInterval(intervalo);
           document.getElementById('barraTempo').style.width = '0%';
           document.getElementById('barraTempo').style.backgroundColor = '#f44336';
-          mostrarMensagem(`Perdeste! A frase era: ${palavra}`, 'red');
+          mostrarPopupDerrota(palavra);
           desativarBotoes();
           document.getElementById('guardarPontuacao').style.display = 'block';
           document.getElementById('btnIniciar').textContent = 'Começar';
@@ -615,13 +616,11 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
     };
 
     document.getElementById('btnNao').onclick = () => {
-  alert("Insere o teu nome para guardar a pontuação.");
-      document.getElementById('continuarJogo').classList.add('hidden');
-      document.getElementById('guardarPontuacao').style.display = 'block';
-          document.getElementById('btnIniciar').textContent = 'Começar';
-          document.getElementById('categoria').value = '';
-          // pontuação será reiniciada após guardar
-    };
+  document.getElementById('mensagemDerrota').textContent = 'Insere o teu nome para guardar a pontuação:';
+  document.getElementById('continuarJogo').classList.add('hidden');
+  document.getElementById('popupDerrota').classList.remove('hidden');
+  window.scrollTo(0, 0);
+};
 
     function guardarPontuacao() {
       const nome = document.getElementById('nomeJogador').value.trim();
@@ -759,6 +758,50 @@ let tempoTotal = 0;
   }
 }
 
+
+function mostrarPopupDerrota(frase) {
+  document.getElementById('mensagemDerrota').textContent = 'Perdeste! A frase era: ' + frase;
+  document.getElementById('popupDerrota').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function fecharPopupDerrota() {
+  document.getElementById('popupDerrota').classList.add('hidden');
+  const nomeInput = document.getElementById('nomeJogador');
+  if (nomeInput) {
+    nomeInput.scrollIntoView({ behavior: 'smooth' });
+    nomeInput.focus();
+  }
+}
+
+
+function guardarPontuacaoPopup() {
+  const nome = document.getElementById('nomeJogadorPopup').value.trim();
+  if (nome === "") {
+    alert("Por favor, escreve o teu nome.");
+    return;
+  }
+
+  const novaPontuacao = {
+    nome: nome,
+    pontos: pontuacao,
+    data: new Date().toLocaleString()
+  };
+
+  let ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+  ranking.push(novaPontuacao);
+  ranking.sort((a, b) => b.pontos - a.pontos);
+  ranking = ranking.slice(0, 10);
+  localStorage.setItem('rankingForca', JSON.stringify(ranking));
+
+  mostrarRanking();
+  document.getElementById('popupDerrota').classList.add('hidden');
+  pontuacao = 0;
+  atualizarPontuacao(0);
+  document.getElementById('btnIniciar').textContent = 'Começar';
+  document.getElementById('categoriaEscolha').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
 </script>
 <div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
 <h2>Top 10 Recordes</h2>
@@ -774,6 +817,62 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/Forca/service-worker.js');
   });
 }
+
+function mostrarPopupDerrota(frase) {
+  document.getElementById('mensagemDerrota').textContent = 'Perdeste! A frase era: ' + frase;
+  document.getElementById('popupDerrota').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function fecharPopupDerrota() {
+  document.getElementById('popupDerrota').classList.add('hidden');
+  const nomeInput = document.getElementById('nomeJogador');
+  if (nomeInput) {
+    nomeInput.scrollIntoView({ behavior: 'smooth' });
+    nomeInput.focus();
+  }
+}
+
+
+function guardarPontuacaoPopup() {
+  const nome = document.getElementById('nomeJogadorPopup').value.trim();
+  if (nome === "") {
+    alert("Por favor, escreve o teu nome.");
+    return;
+  }
+
+  const novaPontuacao = {
+    nome: nome,
+    pontos: pontuacao,
+    data: new Date().toLocaleString()
+  };
+
+  let ranking = JSON.parse(localStorage.getItem('rankingForca')) || [];
+  ranking.push(novaPontuacao);
+  ranking.sort((a, b) => b.pontos - a.pontos);
+  ranking = ranking.slice(0, 10);
+  localStorage.setItem('rankingForca', JSON.stringify(ranking));
+
+  mostrarRanking();
+  document.getElementById('popupDerrota').classList.add('hidden');
+  pontuacao = 0;
+  atualizarPontuacao(0);
+  document.getElementById('btnIniciar').textContent = 'Começar';
+  document.getElementById('categoriaEscolha').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
 </script>
+
+
+<div id="popupDerrota" class="popup hidden">
+  <div class="popup-content">
+    <p id="mensagemDerrota" style="color: red; font-size: 1.4rem; font-weight: bold;"></p>
+    <p>Insere o teu nome para guardar a pontuação:</p>
+    <input type="text" id="nomeJogadorPopup" placeholder="Teu nome" style="margin-bottom: 10px;" />
+    <button onclick="guardarPontuacaoPopup()">Guardar Pontuação</button>
+  </div>
+</div>
+
+
 </body>
 </html>
