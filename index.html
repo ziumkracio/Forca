@@ -213,13 +213,13 @@
 <label for="categoria">Escolhe uma categoria: </label>
 <select id="categoria">
 <option value="">-- Escolher --</option>
-<option value="ditados">Ditados Populares</option>
-<option value="gastronomia">Gastronomia</option>
-<option value="marcas">Marcas</option>
-<option value="celebridades">Celebridades</option>
-<option value="filmes">Nomes de filmes em português de Portugal</option>
-<option value="animais">Animais</option>
-<option value="profissoes">Profissões</option>
+<option value="ditados">Ditados 🟢</option>
+<option value="gastronomia">Gastronomia 🟢</option>
+<option value="marcas">Marcas 🟢</option>
+<option value="celebridades">Celebridades 🟢</option>
+<option value="filmes">Cinema 🟢</option>
+<option value="animais">Animais 🟢</option>
+<option value="profissoes">Profissões 🟢</option>
 </select>
 <button class="botao-amarelo" id="btnIniciar" onclick="iniciarJogo()">Começar</button>
 </div>
@@ -242,7 +242,7 @@
 <button class="botao-amarelo" id="btnNao">Não</button>
 <div id="popupNovaCategoria" style="display: none; margin-top: 15px;">
 <p>Escolhe uma categoria:</p>
-<select id="popupCategoria" style="margin-bottom: 10px;"><option value="">-- Escolher --</option><option value="ditados">Ditados Populares</option><option value="gastronomia">Gastronomia</option><option value="marcas">Marcas</option><option value="celebridades">Celebridades</option><option value="filmes">Filmes</option><option value="animais">Animais</option><option value="profissoes">Profissões</option></select>
+<select id="popupCategoria" style="margin-bottom: 10px;"><option value="">-- Escolher --</option><option value="ditados">Ditados 🟢</option><option value="gastronomia">Gastronomia 🟢</option><option value="marcas">Marcas 🟢</option><option value="celebridades">Celebridades 🟢</option><option value="filmes">Filmes 🟢</option><option value="animais">Animais 🟢</option><option value="profissoes">Profissões 🟢</option></select>
 <br/>
 <button class="botao-amarelo" id="btnComecarPopup">Começar</button>
 </div>
@@ -513,12 +513,26 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
           if (palavra[i] === letra) estado[i] = letra;
         }
         palavraDisplay.innerHTML = estado.join('');
+        
         if (!estado.includes('_')) {
           mostrarMensagem('Parabens! Venceste!', 'green');
           clearInterval(intervalo);
           desativarBotoes();
-          document.getElementById('continuarJogo').classList.remove('hidden');
+
+          // Reset visual do popup de continuar
+          const continuarJogo = document.getElementById('continuarJogo');
+          const popupNovaCategoria = document.getElementById('popupNovaCategoria');
+          const btnSim = document.getElementById('btnSim');
+          const btnNao = document.getElementById('btnNao');
+          const btnComecarPopup = document.getElementById('btnComecarPopup');
+
+          continuarJogo.classList.remove('hidden');
+          popupNovaCategoria.style.display = 'none';
+          btnSim.style.display = 'inline-block';
+          btnNao.style.display = 'inline-block';
+          btnComecarPopup.style.display = 'none';
         }
+
       } else {
         somErro.play();
         atualizarPontuacao(-1);
@@ -827,15 +841,26 @@ function guardarPontuacaoPopup() {
 }
 
 
+
+
 function mostrarPopupVitoria() {
-  document.getElementById("popupVitoria").classList.remove("hidden");
-  document.getElementById("popupNovaCategoria").style.display = "none";
-  document.getElementById("btnComecarPopup").style.display = "none";
-  document.getElementById("btnSim").style.display = "inline-block";
-  document.getElementById("btnNao").style.display = "inline-block";
+  const popupVitoria = document.getElementById("popupVitoria");
+  const btnSim = document.getElementById("btnSim");
+  const btnNao = document.getElementById("btnNao");
+  const popupNovaCategoria = document.getElementById("popupNovaCategoria");
+  const btnComecarPopup = document.getElementById("btnComecarPopup");
+
+  // Mostrar popup
+  popupVitoria.classList.remove("hidden");
+
+  // Garantir que a escolha de nova categoria está oculta
+  popupNovaCategoria.style.display = "none";
+  btnComecarPopup.style.display = "none";
+
+  // Mostrar os botões "Sim" e "Não"
+  btnSim.style.display = "inline-block";
+  btnNao.style.display = "inline-block";
 }
-
-
 document.getElementById("btnSim").onclick = () => {
   document.getElementById("btnSim").style.display = "none";
   document.getElementById("btnNao").style.display = "none";
@@ -918,15 +943,26 @@ function guardarPontuacaoPopup() {
 }
 
 
+
+
 function mostrarPopupVitoria() {
-  document.getElementById("popupVitoria").classList.remove("hidden");
-  document.getElementById("popupNovaCategoria").style.display = "none";
-  document.getElementById("btnComecarPopup").style.display = "none";
-  document.getElementById("btnSim").style.display = "inline-block";
-  document.getElementById("btnNao").style.display = "inline-block";
+  const popupVitoria = document.getElementById("popupVitoria");
+  const btnSim = document.getElementById("btnSim");
+  const btnNao = document.getElementById("btnNao");
+  const popupNovaCategoria = document.getElementById("popupNovaCategoria");
+  const btnComecarPopup = document.getElementById("btnComecarPopup");
+
+  // Mostrar popup
+  popupVitoria.classList.remove("hidden");
+
+  // Garantir que a escolha de nova categoria está oculta
+  popupNovaCategoria.style.display = "none";
+  btnComecarPopup.style.display = "none";
+
+  // Mostrar os botões "Sim" e "Não"
+  btnSim.style.display = "inline-block";
+  btnNao.style.display = "inline-block";
 }
-
-
 document.getElementById("btnSim").onclick = () => {
   document.getElementById("btnSim").style.display = "none";
   document.getElementById("btnNao").style.display = "none";
@@ -971,7 +1007,7 @@ document.getElementById("btnComecarPopup").onclick = () => {
 <option value="Gastronomia">Gastronomia</option>
 <option value="Marcas">Marcas</option>
 <option value="Celebridades">Celebridades</option>
-<option value="Filmes">Filmes</option>
+<option value="Cinema">Cinema</option>
 <option value="Animais">Animais</option>
 <option value="Profissões">Profissões</option>
 </select>
@@ -980,5 +1016,47 @@ document.getElementById("btnComecarPopup").onclick = () => {
 </div>
 </div>
 </div>
-</body>
+<script>
+
+
+function atualizarEmojisCategorias() {
+  const obterNomeCategoria = (chave) => {
+    const nomes = {
+      ditados: "Ditados Populares",
+      gastronomia: "Gastronomia",
+      marcas: "Marcas",
+      celebridades: "Celebridades",
+      filmes: "Cinema",
+      animais: "Animais",
+      profissoes: "Profissões"
+    };
+    return nomes[chave] || chave;
+  };
+
+  const atualizar = (selectElement) => {
+    for (let option of selectElement.options) {
+      const valor = option.value;
+      if (!valor || !categoriasDisponiveis[valor]) continue;
+      const restantes = categoriasDisponiveis[valor].length;
+      const nomeCompleto = obterNomeCategoria(valor);
+      if (restantes >= 9) {
+        option.textContent = nomeCompleto + " 🟢";
+      } else if (restantes >= 1) {
+        option.textContent = nomeCompleto + " 🟠";
+      } else {
+        option.textContent = nomeCompleto + " 🔴";
+      }
+    }
+  };
+
+  atualizar(document.getElementById("categoria"));
+  const popupSelect = document.getElementById("popupCategoria");
+  if (popupSelect) atualizar(popupSelect);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  atualizarEmojisCategorias();
+  document.getElementById("categoria").addEventListener("click", atualizarEmojisCategorias);
+});
+</script></body>
 </html>
