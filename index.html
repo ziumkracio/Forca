@@ -183,6 +183,42 @@
   display: none;
 }
 
+
+@keyframes confeteQueda {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+}
+.confete {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background-color: gold;
+  border-radius: 50%;
+  animation: confeteQueda 2s linear forwards;
+  z-index: 9999;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+.shake {
+  animation: shake 0.5s;
+}
+.vitoria-bg {
+  animation: bgVerde 1s ease;
+}
+@keyframes bgVerde {
+  0% { background-color: #2ecc71; }
+  100% { background-color: inherit; }
+}
+.derrota-bg {
+  animation: bgVermelho 0.5s ease;
+}
+@keyframes bgVermelho {
+  0% { background-color: #e74c3c; }
+  100% { background-color: inherit; }
+}
 </style>
 <link href="/Forca/manifest.json" rel="manifest"/>
 <meta content="#3498db" name="theme-color"/>
@@ -213,13 +249,13 @@
 <label for="categoria">Escolhe uma categoria: </label>
 <select id="categoria">
 <option value="">-- Escolher --</option>
-<option value="ditados">Ditados 🟢</option>
+<option value="ditados">Ditados Populares</option>
 <option value="gastronomia">Gastronomia 🟢</option>
 <option value="marcas">Marcas 🟢</option>
 <option value="celebridades">Celebridades 🟢</option>
-<option value="filmes">Cinema 🟢</option>
+<option value="filmes">Cinema</option>
 <option value="animais">Animais 🟢</option>
-<option value="profissoes">Profissões 🟢</option>
+<option value="profissoes">Profissões</option>
 </select>
 <button class="botao-amarelo" id="btnIniciar" onclick="iniciarJogo()">Começar</button>
 </div>
@@ -242,7 +278,7 @@
 <button class="botao-amarelo" id="btnNao">Não</button>
 <div id="popupNovaCategoria" style="display: none; margin-top: 15px;">
 <p>Escolhe uma categoria:</p>
-<select id="popupCategoria" style="margin-bottom: 10px;"><option value="">-- Escolher --</option><option value="ditados">Ditados 🟢</option><option value="gastronomia">Gastronomia 🟢</option><option value="marcas">Marcas 🟢</option><option value="celebridades">Celebridades 🟢</option><option value="filmes">Filmes 🟢</option><option value="animais">Animais 🟢</option><option value="profissoes">Profissões 🟢</option></select>
+<select id="popupCategoria" style="margin-bottom: 10px;"><option value="">-- Escolher --</option><option value="ditados">Ditados Populares</option><option value="gastronomia">Gastronomia 🟢</option><option value="marcas">Marcas 🟢</option><option value="celebridades">Celebridades 🟢</option><option value="filmes">Cinema</option><option value="animais">Animais 🟢</option><option value="profissoes">Profissões</option></select>
 <br/>
 <button class="botao-amarelo" id="btnComecarPopup">Começar</button>
 </div>
@@ -515,7 +551,7 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
         palavraDisplay.innerHTML = estado.join('');
         
         if (!estado.includes('_')) {
-          mostrarMensagem('Parabens! Venceste!', 'green');
+          mostrarMensagem('Parabens! Venceste!', 'green'); animacaoVitoria();
           clearInterval(intervalo);
           desativarBotoes();
 
@@ -545,7 +581,7 @@ estado = palavra.split('').map(c => /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(c) ? '_
           clearInterval(intervalo);
           document.getElementById('barraTempo').style.width = '0%';
           document.getElementById('barraTempo').style.backgroundColor = '#f44336';
-          mostrarPopupDerrota(palavra);
+          mostrarPopupDerrota(palavra); animacaoDerrota();
           desativarBotoes();
           document.getElementById('guardarPontuacao').style.display = 'block';
           document.getElementById('btnIniciar').textContent = 'Começar';
@@ -773,7 +809,7 @@ let tempoTotal = 0;
         atualizarTempo();
         if (tempo <= 0) {
           clearInterval(intervalo);
-          mostrarMensagem("Tempo esgotado! Perdeste!", "red");
+          mostrarMensagem("Tempo esgotado! Perdeste!", "red"); animacaoDerrota();
           desativarBotoes();
           document.getElementById('guardarPontuacao').style.display = 'block';
           document.getElementById('btnIniciar').textContent = 'Começar';
@@ -883,6 +919,39 @@ document.getElementById("btnComecarPopup").onclick = () => {
   iniciarJogo();
 };
 
+
+let intervaloConfetes;
+
+function animacaoVitoria() {
+  document.body.classList.add("vitoria-bg");
+  if (intervaloConfetes) clearInterval(intervaloConfetes);
+  intervaloConfetes = setInterval(() => {
+    const confete = document.createElement("div");
+    confete.className = "confete";
+    confete.style.left = Math.random() * 100 + "vw";
+    confete.style.backgroundColor = ["gold", "red", "blue", "green", "purple"][Math.floor(Math.random() * 5)];
+    confete.style.animationDelay = (Math.random() * 0.5) + "s";
+    document.body.appendChild(confete);
+    setTimeout(() => confete.remove(), 3000);
+  }, 100);
+}
+
+function animacaoDerrota() {
+  document.body.classList.add("derrota-bg");
+  document.body.classList.add("shake");
+  setTimeout(() => {
+    document.body.classList.remove("derrota-bg");
+    document.body.classList.remove("shake");
+  }, 600);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const pararConfetes = () => {
+    if (intervaloConfetes) clearInterval(intervaloConfetes);
+  };
+  document.getElementById("btnSim").addEventListener("click", pararConfetes);
+  document.getElementById("btnNao").addEventListener("click", pararConfetes);
+});
 </script>
 <div id="ranking" style="margin-top: 50px; width: 100%; max-width: 500px;">
 <h2>Top 10 Recordes</h2>
