@@ -6,6 +6,50 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Jogo da Forca</title>
 <style>
+@keyframes piscarTextoPopup {
+  0% { color: #2ecc71; }
+  50% { color: white; }
+  100% { color: #2ecc71; }
+}
+  50% { color: white; background-color: #2ecc71; }
+  100% { color: #2ecc71; background-color: white; }
+}
+.piscar {
+  animation: piscarTextoPopup 1s infinite;
+  border-radius: 8px;
+}
+@keyframes piscarTextoPopup {
+  0% { color: #2ecc71; }
+  50% { color: white; }
+  100% { color: #2ecc71; }
+}
+  50% { color: white; background-color: #2ecc71; }
+  100% { color: #2ecc71; background-color: white; }
+}
+#mensagemVitoriaPiscar {
+  animation: piscarTextoPopup 1s infinite;
+  padding: 5px;
+  border-radius: 8px;
+}
+@keyframes piscarTextoPopup {
+  0% { color: #2ecc71; }
+  50% { color: white; }
+  100% { color: #2ecc71; }
+}
+  50% { color: white; background-color: #2ecc71; }
+  100% { color: #2ecc71; background-color: white; }
+}
+.popup-content p[style*="Parabéns"] {
+  animation: piscarTextoPopup 1s infinite;
+  padding: 5px;
+  border-radius: 8px;
+}
+@keyframes piscarVerde {
+  0% { background-color: #2ecc71; color: white; }
+  50% { background-color: white; color: #2ecc71; }
+  100% { background-color: #2ecc71; color: white; }
+}
+
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom, #aee1f9, #ffffff);
@@ -272,7 +316,7 @@
   </div>
 <div class="popup hidden" id="continuarJogo">
 <div class="popup-content">
-<p style="color: green; font-size: 1.4rem; font-weight: bold;">Parabéns! Venceste!</p>
+<p style="color: green; font-size: 1.4rem; font-weight: bold;"><span id="mensagemVitoriaPiscar">Parabéns! Venceste!</span></p>
 <p>Queres continuar?</p>
 <button class="botao-amarelo" id="btnSim">Sim</button>
 <button class="botao-amarelo" id="btnNao">Não</button>
@@ -898,6 +942,8 @@ function mostrarPopupVitoria() {
   btnNao.style.display = "inline-block";
 }
 document.getElementById("btnSim").onclick = () => {
+  const p = document.getElementById("mensagemVitoriaPiscar");
+  if (p) p.classList.remove("piscar");
   document.getElementById("btnSim").style.display = "none";
   document.getElementById("btnNao").style.display = "none";
   document.getElementById("popupNovaCategoria").style.display = "block";
@@ -924,6 +970,7 @@ let intervaloConfetes;
 
 function animacaoVitoria() {
   document.body.classList.add("vitoria-bg");
+  lançarEmojisSorridentes();
   if (intervaloConfetes) clearInterval(intervaloConfetes);
   intervaloConfetes = setInterval(() => {
     const confete = document.createElement("div");
@@ -1033,6 +1080,8 @@ function mostrarPopupVitoria() {
   btnNao.style.display = "inline-block";
 }
 document.getElementById("btnSim").onclick = () => {
+  const p = document.getElementById("mensagemVitoriaPiscar");
+  if (p) p.classList.remove("piscar");
   document.getElementById("btnSim").style.display = "none";
   document.getElementById("btnNao").style.display = "none";
   document.getElementById("popupNovaCategoria").style.display = "block";
@@ -1127,5 +1176,35 @@ document.addEventListener("DOMContentLoaded", () => {
   atualizarEmojisCategorias();
   document.getElementById("categoria").addEventListener("click", atualizarEmojisCategorias);
 });
-</script></body>
+</script>
+<style>
+.emoji-sorridente {
+  position: fixed;
+  top: -2em;
+  font-size: 1.8em;
+  z-index: 9999;
+  animation: confeteQueda 3s linear forwards;
+  pointer-events: none;
+}
+</style>
+
+<script>
+function lançarEmojisSorridentes() {
+  const emojis = ['😀','😄','😁','😆','😊','😎','🥳'];
+  const intervalo = setInterval(() => {
+    const emoji = document.createElement('div');
+    emoji.classList.add('emoji-sorridente');
+    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    emoji.style.left = Math.random() * 100 + "vw";
+    emoji.style.animationDelay = (Math.random() * 0.5) + "s";
+    document.body.appendChild(emoji);
+    setTimeout(() => emoji.remove(), 3000);
+  }, 100);
+
+  // Parar após alguns segundos (como os confetis)
+  setTimeout(() => clearInterval(intervalo), 3000);
+}
+</script>
+
+</body>
 </html>
